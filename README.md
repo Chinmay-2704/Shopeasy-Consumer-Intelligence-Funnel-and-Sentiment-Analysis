@@ -3,13 +3,11 @@
 
 ---
 
-## Executive Snapshot (3-Minute Read)
+## Executive Snapshot 
 
 **Business Context**
 ShopEasy's leadership identified a gap between marketing investment and actual purchase conversion. Despite strong top-funnel engagement, revenue growth was not keeping pace with traffic. This analysis was commissioned to diagnose where customers were dropping off, why sentiment was declining, and which products were silently underperforming — before these issues became visible in the P&L.
 
-<h3>Dashboard Walkthrough</h3>
-<img src="image/demo.gif" width="900"/>
 
 ## Key Findings ##
 - 96% of all drop-offs occur at Checkout (575 of 598) — the business has a bottom-funnel problem, not a traffic problem
@@ -137,80 +135,6 @@ Critical signal: Running Shoes is At Risk across all three dimensions while simu
 - Address the uniform seasonal engagement decay before scaling marketing spend
 
 ---
-
-
-
-## 🧠 Key Analytical Decisions
-
-*The judgement calls that shaped this analysis — not just what was done, but why.*
-
-- **Negative review theme extraction grounded in word frequency** — Filtered 233 negative reviews and ran word frequency analysis to identify dominant complaint vocabulary before building keyword categories. Categories are data-driven (e.g. "Unmet Expectations" emerged from `meet`, `expectations`, `average` appearing 38x each) — not assumed. Keyword matching does not handle sarcasm; TF-IDF or BERTopic would be more accurate at scale.
-
-- **VADER + Star Rating hybrid sentiment** — Pure VADER scored "The quality is top-notch" as 0.0000. Hybrid categorisation adds star rating context, producing five categories including Mixed types that pure NLP misses.
-
-- **Composite Product Health Score** — No single metric fully captures product risk. Thresholds derived from actual data distribution — not arbitrary cutoffs.
-
-- **Centralised Calendar dimension** — Three fact tables with independent date columns need a shared date dimension for a single slicer to cross-filter all three simultaneously.
-
-- **Logical duplicate detection over primary key trust** — `JourneyID` guarantees no technical duplicates, not business ones. `ROW_NUMBER()` over CustomerID + ProductID + VisitDate + Stage + Action found 79 duplicates the PK would have missed.
-
-- **NULL Duration preserved, not imputed** — 100% of NULLs belong to Drop-off rows. Imputing would have invented data that never existed.
-
-- **COLLATE for casing detection** — `SELECT DISTINCT` passed Stage and ContentType as clean. `COLLATE Latin1_General_CS_AS` exposed 6 and 12 hidden variants respectively.
-
-- **Physical tables over views** — Views re-execute on every access. Physical tables provide a stable, auditable base for both Python and Power BI connections.
-
-
-
----
-
-## 🔍 Data Quality Audit Summary
-
-| Table | Issue | Finding | Action |
-|---|---|---|---|
-| customer_journey | Logical duplicates | 79 (PK-invisible) | Removed via ROW_NUMBER() |
-| customer_journey | NULL Duration | 613 — all Drop-offs | Preserved — intentional system behavior |
-| customer_journey | Stage casing | 3 lowercase variants | COLLATE + UPPER() |
-| customer_reviews | ReviewText whitespace | Leading/trailing spaces | TRIM() + REPLACE() |
-| engagement_data | ContentType casing | 3 variants per value | Standardised |
-| engagement_data | Combined metric column | Views + Clicks as "1500-300" | Split into two integer columns |
-
-| Table | Raw | Cleaned | Change |
-|---|---|---|---|
-| customer_journey_cleaned | 4,011 | 3,932 | −79 logical duplicates |
-| customer_reviews_cleaned | 1,363 | 1,363 | Structural cleaning only |
-| engagement_data_cleaned | 4,623 | 4,623 | Casing + column split |
-
-The SQL files used to validate and clean this data can be found here: [01_validation.sql](01.Data_Validation.sql) · [02_cleaning_transformation.sql](02_cleaning_transformation.sql)
-
- Power BI dashboard can be found here: [Download Dashboard](shopeasy_consumer_intelligence.pbix)
-
----
-
-## 🛠️ Tools Used
-
-- **SQL Server** — Data validation, cleaning, and transformation
-- **Python** — NLP sentiment pipeline (VADER + keyword theme extraction)
-- **Power BI** — Interactive 5-page dashboard with DAX measures and composite scoring
-
----
-
-## ⚠️ Assumptions & Caveats
-
-- Dataset is simulated — all figures should be interpreted directionally
-- Incomplete time periods excluded from trend analysis to prevent distorted quarter-over-quarter comparisons
-- Product Health Score uses equal weighting across three metrics — real-world scoring would apply business-weighted priorities
-- VADER lexicon gaps addressed via hybrid categorisation — Mixed categories are estimates, not ground truth
-
----
-
-## 📬 Contact and Feedback
-
-This project was developed as part of a portfolio demonstrating end-to-end data analysis capabilities across SQL, Python, and Power BI.
-
-**Data Analyst:** Praveen M
-
-**LinkedIn:** [Profile](https://www.linkedin.com/in/praveen-m-a6b0a1354)
 
 **Email:** praveenm2124@gmail.com
 
