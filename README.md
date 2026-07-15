@@ -135,9 +135,3 @@ Critical signal: Running Shoes is At Risk across all three dimensions while simu
 - Address the uniform seasonal engagement decay before scaling marketing spend
 
 ---
-
-**Email:** praveenm2124@gmail.com
-
----
-
-*Analysis Period: 2023–2025 | Data Source: Simulated retail dataset | Tools: SQL Server · Python · Power BI*
